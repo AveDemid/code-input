@@ -1,7 +1,7 @@
 {
-  "name": "react-boilerplate",
+  "name": "code-input",
   "version": "0.0.1",
-  "description": "My own react starter-kit",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "s:d": "webpack-dev-server --mode development --hot",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/AveDemid/react-boilerplate.git"
+    "url": "git+https://github.com/AveDemid/code-input.git"
   },
   "author": "Ave Demid",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AveDemid/react-boilerplate/issues"
+    "url": "https://github.com/AveDemid/code-input/issues"
   },
-  "homepage": "https://github.com/AveDemid/react-boilerplate#readme",
+  "homepage": "https://github.com/AveDemid/code-input#readme",
   "browserslist": [
     "> 0.2%",
     "not op_mini all",

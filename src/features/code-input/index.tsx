@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 
 const BACKSPACE_KEY = 8;
 const LEFT_ARROW_KEY = 37;
@@ -18,7 +18,13 @@ const mergeArraysWithOffset = (
   });
 };
 
-export const CodeInput = ({ fields }: { fields: number }) => {
+export const CodeInput = ({
+  fields,
+  onChange
+}: {
+  fields: number;
+  onChange(value: string): void;
+}) => {
   const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
 
   const refsOnInput = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -93,6 +99,10 @@ export const CodeInput = ({ fields }: { fields: number }) => {
         break;
     }
   };
+
+  useEffect(() => {
+    onChange && onChange(values.join(""));
+  }, [onChange, values]);
 
   return (
     <div>

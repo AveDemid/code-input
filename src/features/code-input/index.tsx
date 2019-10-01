@@ -1,24 +1,16 @@
 import React, { useRef, useState } from "react";
 
-import {
-  LEFT_ARROW_KEY,
-  RIGHT_ARROW_KEY,
-  BACKSPACE_KEY,
-  UP_ARROW_KEY,
-  DOWN_ARROW_KEY
-} from "./constants";
-
-const useArrayValues = (length: number, fill?: any) => {
-  const [values, setValues] = useState<string[]>([...Array(length).fill(fill)]);
-
-  return [values, setValues] as [string[], (value: any) => void];
-};
+const BACKSPACE_KEY = 8;
+const LEFT_ARROW_KEY = 37;
+const UP_ARROW_KEY = 38;
+const RIGHT_ARROW_KEY = 39;
+const DOWN_ARROW_KEY = 40;
 
 const mergeArraysWithOffset = (
-  arr1: any[],
-  arr2: any[],
+  arr1: string[],
+  arr2: string[],
   offset: number
-): any[] => {
+): string[] => {
   return arr1.map((value, idx) => {
     const hasNewValue = idx >= offset && typeof arr2[idx - offset] === "string";
 
@@ -27,10 +19,10 @@ const mergeArraysWithOffset = (
 };
 
 export const CodeInput = ({ fields }: { fields: number }) => {
-  const [values, setValue] = useArrayValues(fields, "");
+  const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
+
   const refsOnInput = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
-  // Handlers
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const idx = Number(event.target.dataset.idx);
     const value = event.target.value;
@@ -42,7 +34,6 @@ export const CodeInput = ({ fields }: { fields: number }) => {
     const nextIndex = idx + chars.length < fields - 1
       ? idx + chars.length
       : fields - 1;
-
     const nextInput = refsOnInput.current[nextIndex];
 
     setValue(nextState);
@@ -79,6 +70,7 @@ export const CodeInput = ({ fields }: { fields: number }) => {
 
     switch (keyCode) {
       case BACKSPACE_KEY:
+        event.preventDefault();
         if (value.length === 0) {
           prevInput && prevInput.focus() && prevInput.select();
         } else {
@@ -104,21 +96,19 @@ export const CodeInput = ({ fields }: { fields: number }) => {
 
   return (
     <div>
-      {values.map((value, idx) => {
-        return (
-          <input
-            type="text"
-            key={idx}
-            data-idx={idx}
-            value={value}
-            onChange={handleChange}
-            onClick={handleClick}
-            onFocus={handleFocus}
-            onKeyDown={handleKeyDown}
-            ref={ref => handleRef(ref, idx)}
-          />
-        );
-      })}
+      {values.map((value, idx) => (
+        <input
+          type="text"
+          key={idx}
+          data-idx={idx}
+          value={value}
+          onChange={handleChange}
+          onClick={handleClick}
+          onFocus={handleFocus}
+          onKeyDown={handleKeyDown}
+          ref={ref => handleRef(ref, idx)}
+        />
+      ))}
     </div>
   );
 };

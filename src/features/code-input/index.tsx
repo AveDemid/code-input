@@ -105,7 +105,9 @@ export const CodeInput = ({
       case BACKSPACE_KEY:
         event.preventDefault();
         if (value) {
-          setValue(mergeArraysWithOffset(values, [""], Number(idx)));
+          const nextState = mergeArraysWithOffset(values, [""], Number(idx));
+
+          setValue(nextState);
         } else {
           setIdxToFocus(Number(idx) - 1);
         }

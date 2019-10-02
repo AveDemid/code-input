@@ -21,19 +21,31 @@ const mergeArraysWithOffset = (
 };
 
 interface CodeInputProps {
+  autoFocus?: boolean;
   fields: number;
   onChange?(value: string): void;
   onLastChange?(): void;
+  className?: string;
+  inputClassName?: string;
+  initialValue?: string;
+  name?: string;
+  // need test
+  type?: "text" | "number" | "password" | "tel";
 }
 
 export const CodeInput = ({
   fields,
   onChange,
-  onLastChange
+  onLastChange,
+  initialValue,
+  autoFocus,
+  className,
+  inputClassName,
+  type = "text"
 }: CodeInputProps) => {
   const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
-
   const [idxToFocus, setIdxToFocus] = useState<number>(0);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
   const refsOnInput = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
@@ -130,23 +142,38 @@ export const CodeInput = ({
     }
   };
 
-  // Focus control
   useEffect(() => {
-    const inputToFocus = refsOnInput.current[idxToFocus];
+    if (initialValue && !isInitialized) {
+      const nextState = mergeArraysWithOffset(
+        values,
+        initialValue.replace(/\s+/g, "").split(""),
+        0
+      );
+
+      setValue(nextState);
+      setIdxToFocus(initialValue.length);
+    }
+  }, [initialValue, isInitialized, values]);
+
+  useEffect(() => {
+    if (!isInitialized && !autoFocus) {
+      return;
+    }
+
+    const idx = idxToFocus > fields - 1 ? fields - 1 : idxToFocus;
+    const inputToFocus = refsOnInput.current[idx];
 
     if (inputToFocus) {
       inputToFocus.focus();
     }
-  }, [idxToFocus, refsOnInput]);
+  }, [idxToFocus, autoFocus, refsOnInput, isInitialized]);
 
-  // Raising value
   useEffect(() => {
     if (onChange) {
       onChange(values.join(""));
     }
   }, [values, onChange]);
 
-  // Capture of changes of the last input
   useEffect(() => {
     const lastInput = refsOnInput.current[fields - 1];
 
@@ -160,11 +187,15 @@ export const CodeInput = ({
     }
   }, [fields, onLastChange, idxToFocus]);
 
+  useEffect(() => {
+    setIsInitialized(true);
+  }, [setIsInitialized]);
+
   return (
-    <div>
+    <div className={className}>
       {values.map((value, idx) => (
         <input
-          type="text"
+          type={type}
           key={idx}
           data-idx={idx}
           value={value}
@@ -173,12 +204,8 @@ export const CodeInput = ({
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           ref={ref => handleRef(ref, idx)}
-          style={{
-            width: "30px",
-            height: "30px",
-            fontSize: "30px",
-            lineHeight: "30px"
-          }}
+          autoFocus={autoFocus}
+          className={inputClassName}
         />
       ))}
     </div>

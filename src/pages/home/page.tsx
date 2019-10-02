@@ -2,18 +2,17 @@ import React, { useEffect, useState } from "react";
 import { CodeInput } from "@features/code-input";
 
 export const HomePage = () => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState("123456");
 
   useEffect(() => {}, [value]);
 
   return (
     <div>
       <CodeInput
-        fields={20}
+        fields={5}
         onChange={setValue}
-        onLastChange={() => {
-          console.log("i'm change :)");
-        }}
+        initialValue={value}
+        autoFocus={true}
       />
     </div>
   );

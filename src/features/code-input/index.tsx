@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import { mergeArraysWithOffset } from "./utils";
 
 const BACKSPACE_KEY = 8;
 const LEFT_ARROW_KEY = 37;
@@ -7,18 +8,6 @@ const UP_ARROW_KEY = 38;
 const DOWN_ARROW_KEY = 40;
 const SPACE_KEY = 32;
 const TAB_KEY = 9;
-
-const mergeArraysWithOffset = (
-  arr1: string[],
-  arr2: string[],
-  offset: number
-): string[] => {
-  return arr1.map((value, idx) => {
-    const hasNewValue = idx >= offset && typeof arr2[idx - offset] === "string";
-
-    return hasNewValue ? arr2[idx - offset] : value;
-  });
-};
 
 interface CodeInputProps {
   autoFocus?: boolean;

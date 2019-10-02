@@ -2,9 +2,10 @@ module.exports = {
   env: {
     browser: true,
     node: true,
+    jest: true
   },
   parser: "@typescript-eslint/parser",
-  extends: [    
+  extends: [
     //  eslint
     "eslint:recommended",
     // typescript
@@ -15,7 +16,7 @@ module.exports = {
     "plugin:prettier/recommended",
     // eslint-config-prettier
     "prettier",
-    "prettier/@typescript-eslint",
+    "prettier/@typescript-eslint"
   ],
   parserOptions: {
     ecmaVesion: 2018,

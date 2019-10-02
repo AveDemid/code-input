@@ -10,7 +10,7 @@ export const HomePage = () => {
 
   return (
     <div>
-      <CodeInput fields={20} onChange={setValue} />
+      <CodeInput fields={20} />
     </div>
   );
 };

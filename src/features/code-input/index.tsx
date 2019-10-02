@@ -1,10 +1,11 @@
-import React, { useRef, useState, useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 const BACKSPACE_KEY = 8;
 const LEFT_ARROW_KEY = 37;
-const UP_ARROW_KEY = 38;
 const RIGHT_ARROW_KEY = 39;
+const UP_ARROW_KEY = 38;
 const DOWN_ARROW_KEY = 40;
+const SPACE = 32;
 
 const mergeArraysWithOffset = (
   arr1: string[],
@@ -18,76 +19,83 @@ const mergeArraysWithOffset = (
   });
 };
 
-export const CodeInput = ({
-  fields,
-  onChange
-}: {
+interface CodeInputProps {
   fields: number;
-  onChange(value: string): void;
-}) => {
-  const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
+}
 
+export const CodeInput = ({ fields }: CodeInputProps) => {
+  const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
+  const [idxToFocus, setIdxToFocus] = useState<number>(0);
   const refsOnInput = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const idx = Number(event.target.dataset.idx);
-    const value = event.target.value;
-    const chars = value.split("").filter(char => /\S/.test(char));
-    const nextState = mergeArraysWithOffset(values, chars, idx);
+    const {
+      target: {
+        value,
+        dataset: { idx }
+      }
+    } = event;
 
-    // prettier-ignore
+    const nextState = mergeArraysWithOffset(
+      values,
+      value.replace(/\s+/g, "").split(""),
+      Number(idx)
+    );
+
     // eslint-disable-next-line
-    const nextIndex = idx + chars.length < fields - 1
-      ? idx + chars.length
-      : fields - 1;
-    const nextInput = refsOnInput.current[nextIndex];
+    // prettier-ignore
+    const idxToFocus = value.length + Number(idx) > fields - 1
+                          ? fields - 1 
+                          : value.length + Number(idx);
 
     setValue(nextState);
-    nextInput && nextInput.focus();
+    setIdxToFocus(idxToFocus);
   };
 
   const handleRef = (ref: null | HTMLInputElement, idx: number) => {
     refsOnInput.current[idx] = ref;
   };
 
-  const handleClick = (
+  const handleMouseDown = (
     event: React.MouseEvent<HTMLInputElement, MouseEvent>
   ) => {
-    event.currentTarget.select();
+    event.preventDefault();
+    const { currentTarget } = event;
+
+    currentTarget && currentTarget.select();
   };
 
   const handleFocus = (event: React.FocusEvent<HTMLInputElement>) => {
-    event.target.select();
+    const { target } = event;
+    target && target.select();
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const value = event.currentTarget.value;
-    const key = event.key;
-    const keyCode = event.keyCode;
-    const idx = Number(event.currentTarget.dataset.idx);
-    const nextInput = refsOnInput.current[idx + 1];
-    const prevInput = refsOnInput.current[idx - 1];
-
-    if (value === key) {
-      const nextInput = refsOnInput.current[idx + 1];
-
-      nextInput && nextInput.focus();
-    }
+    const {
+      keyCode,
+      key,
+      currentTarget: {
+        value,
+        dataset: { idx }
+      }
+    } = event;
 
     switch (keyCode) {
       case BACKSPACE_KEY:
         event.preventDefault();
-        if (value.length === 0) {
-          prevInput && prevInput.focus() && prevInput.select();
+        if (value) {
+          setValue(mergeArraysWithOffset(values, [""], Number(idx)));
         } else {
-          setValue(mergeArraysWithOffset(values, [""], idx));
+          setIdxToFocus(Number(idx) - 1);
         }
         break;
       case LEFT_ARROW_KEY:
-        prevInput && prevInput.focus();
+        event.preventDefault();
+        setIdxToFocus(Number(idx) - 1);
         break;
       case RIGHT_ARROW_KEY:
-        nextInput && nextInput.focus();
+        event.preventDefault();
+        setIdxToFocus(Number(idx) + 1);
         break;
       case UP_ARROW_KEY:
         event.preventDefault();
@@ -95,14 +103,25 @@ export const CodeInput = ({
       case DOWN_ARROW_KEY:
         event.preventDefault();
         break;
-      default:
+      case SPACE:
+        event.preventDefault();
         break;
+      default:
+        if (key === value) {
+          setIdxToFocus(Number(idx) + 1);
+        }
     }
   };
 
   useEffect(() => {
-    onChange && onChange(values.join(""));
-  }, [onChange, values]);
+    const inputToFocus = refsOnInput.current[idxToFocus];
+
+    if (inputToFocus) {
+      inputToFocus.focus();
+    }
+  }, [idxToFocus, refsOnInput]);
+
+  console.log(values);
 
   return (
     <div>
@@ -113,10 +132,16 @@ export const CodeInput = ({
           data-idx={idx}
           value={value}
           onChange={handleChange}
-          onClick={handleClick}
+          onMouseDown={handleMouseDown}
           onFocus={handleFocus}
           onKeyDown={handleKeyDown}
           ref={ref => handleRef(ref, idx)}
+          style={{
+            width: "30px",
+            height: "30px",
+            fontSize: "30px",
+            lineHeight: "30px"
+          }}
         />
       ))}
     </div>

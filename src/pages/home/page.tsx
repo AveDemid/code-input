@@ -4,13 +4,17 @@ import { CodeInput } from "@features/code-input";
 export const HomePage = () => {
   const [value, setValue] = useState("");
 
-  useEffect(() => {
-    console.log(value);
-  }, [value]);
+  useEffect(() => {}, [value]);
 
   return (
     <div>
-      <CodeInput fields={20} />
+      <CodeInput
+        fields={20}
+        onChange={setValue}
+        onLastChange={() => {
+          console.log("i'm change :)");
+        }}
+      />
     </div>
   );
 };

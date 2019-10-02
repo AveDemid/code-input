@@ -5,7 +5,8 @@ const LEFT_ARROW_KEY = 37;
 const RIGHT_ARROW_KEY = 39;
 const UP_ARROW_KEY = 38;
 const DOWN_ARROW_KEY = 40;
-const SPACE = 32;
+const SPACE_KEY = 32;
+const TAB_KEY = 9;
 
 const mergeArraysWithOffset = (
   arr1: string[],
@@ -21,11 +22,19 @@ const mergeArraysWithOffset = (
 
 interface CodeInputProps {
   fields: number;
+  onChange?(value: string): void;
+  onLastChange?(): void;
 }
 
-export const CodeInput = ({ fields }: CodeInputProps) => {
+export const CodeInput = ({
+  fields,
+  onChange,
+  onLastChange
+}: CodeInputProps) => {
   const [values, setValue] = useState<string[]>([...Array(fields).fill("")]);
+
   const [idxToFocus, setIdxToFocus] = useState<number>(0);
+
   const refsOnInput = useRef<{ [key: string]: HTMLInputElement | null }>({});
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,8 +112,16 @@ export const CodeInput = ({ fields }: CodeInputProps) => {
       case DOWN_ARROW_KEY:
         event.preventDefault();
         break;
-      case SPACE:
+      case SPACE_KEY:
         event.preventDefault();
+        break;
+      case TAB_KEY:
+        event.preventDefault();
+        if (event.shiftKey) {
+          setIdxToFocus(Number(idx) - 1);
+        } else {
+          setIdxToFocus(Number(idx) + 1);
+        }
         break;
       default:
         if (key === value) {
@@ -113,6 +130,7 @@ export const CodeInput = ({ fields }: CodeInputProps) => {
     }
   };
 
+  // Focus control
   useEffect(() => {
     const inputToFocus = refsOnInput.current[idxToFocus];
 
@@ -121,7 +139,26 @@ export const CodeInput = ({ fields }: CodeInputProps) => {
     }
   }, [idxToFocus, refsOnInput]);
 
-  console.log(values);
+  // Raising value
+  useEffect(() => {
+    if (onChange) {
+      onChange(values.join(""));
+    }
+  }, [values, onChange]);
+
+  // Capture of changes of the last input
+  useEffect(() => {
+    const lastInput = refsOnInput.current[fields - 1];
+
+    if (
+      lastInput &&
+      lastInput.value &&
+      idxToFocus === Number(lastInput.dataset.idx) &&
+      onLastChange
+    ) {
+      onLastChange();
+    }
+  }, [fields, onLastChange, idxToFocus]);
 
   return (
     <div>
